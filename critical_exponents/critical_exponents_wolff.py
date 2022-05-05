@@ -55,13 +55,21 @@ eqSteps - число иетраций для получения равновес
 wolffSteps - число итераций усреднения.
 '''
 def wolffcalc(T, N, eqSteps, wolffSteps, i_border, j_border):
-    N_resc = 2*N
+    '''
+    N - число спинов на ребре решётки
+    постфиксы характеристик:
+    1) без постфикса - обычная решётка N x N
+    2) _r - обычная решётка N_r x N_r
+    3) _resc - блочная решётка N x N
+    4) _d_resc - дважды блочная решётка N_sm x N_sm
+    5) _sm - блочная решётка N_sm x N_sm
+    '''
+    N_r = 2*N
     N_sm = N//2
     averageSteps = wolffSteps
     errSteps = wolffSteps
     config = wolff.initialstate(N, i_border, j_border)
-    config_r = wolff.initialstate(N_resc, i_border, j_border)
-    config_sm = wolff.initialstate(N_sm, i_border, j_border)
+    config_r = wolff.initialstate(N_r, i_border, j_border)
     M1 = M2 = M1_r = M2_r = M1_resc = M2_resc = M1_d_resc = M2_d_resc = M1_sm = M2_sm = 0
     M1_err, M1_r_err, M1_resc_err, M1_d_resc_err, M1_sm_err = np.zeros(errSteps), np.zeros(errSteps), np.zeros(errSteps), np.zeros(errSteps), np.zeros(errSteps)
     M1_err2, M1_r_err2, M1_resc_err2, M1_d_resc_err2, M1_sm_err2 = np.zeros(errSteps), np.zeros(errSteps), np.zeros(errSteps), np.zeros(errSteps), np.zeros(errSteps)
@@ -113,7 +121,7 @@ def wolffcalc(T, N, eqSteps, wolffSteps, i_border, j_border):
     M = M1/averageSteps
     X = (M2/averageSteps - M1/averageSteps*M1/averageSteps)*beta*N**2
     M_r = M1_r/averageSteps
-    X_r = (M2_r/averageSteps - M1_r/averageSteps*M1_r/averageSteps)*beta*N_resc**2
+    X_r = (M2_r/averageSteps - M1_r/averageSteps*M1_r/averageSteps)*beta*N_r**2
     M_resc = M1_resc/averageSteps
     X_resc = (M2_resc/averageSteps - M1_resc/averageSteps*M1_resc/averageSteps)*beta*N**2
     M_d_resc = M1_d_resc/averageSteps
@@ -125,7 +133,7 @@ def wolffcalc(T, N, eqSteps, wolffSteps, i_border, j_border):
     M_err = standardDeviation(M, M1_err)
     X_err = jackknife(X, M1_err, M1_err2, N, beta)
     M_r_err = standardDeviation(M_r, M1_r_err)
-    X_r_err = jackknife(X_r, M1_r_err, M1_r_err2, N_resc, beta)
+    X_r_err = jackknife(X_r, M1_r_err, M1_r_err2, N_r, beta)
     M_resc_err = standardDeviation(M_resc, M1_resc_err)
     X_resc_err = jackknife(X_resc, M1_resc_err, M1_resc_err2, N, beta)
     M_d_resc_err = standardDeviation(M_d_resc, M1_d_resc_err)
@@ -151,8 +159,8 @@ my_rank = world_comm.Get_rank()
 nt = 10 # число значений температуры
 N = 64 # число спинов на стороне решётки, т.е. решёткаразмера N*N
 eqSteps = 2**14
-wolffSteps = 2**16
-i_border, j_border = 0, 0
+wolffSteps = 2**17
+i_border, j_border = 0, -1
 T = np.linspace(2.26, 2.28, nt) # Массив температур
 
 # составление списка аргументов для функции wolffcalc

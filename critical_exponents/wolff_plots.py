@@ -3,6 +3,10 @@ from matplotlib import pyplot as plt
 from matplotlib import ticker
 plt.style.use('seaborn-poster')
 
+'''
+Обработка данных программы Wolff_2Darr.py
+'''
+
 def wolffPlots(T, E, C, M, X, E_err, M_err, C_err, X_err):
     f, axs = plt.subplots(2, 2, figsize=(18, 10))
     formatter = ticker.ScalarFormatter(useMathText=True)
