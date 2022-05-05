@@ -1,7 +1,8 @@
 import numpy as np
-import wolff
+import wolff # Файл с алгоритмом Вольфа
 from numpy.random import rand
-from mpi4py import MPI
+from mpi4py import MPI # для параллельных вычислений
+from tqdm import tqdm # для анализа скорости работы программы и контроля прогресса
 
 # Вычисление намагниченности решётки на спин
 def calcMag(config):
@@ -75,14 +76,30 @@ def wolffcalc(T, N, eqSteps, wolffSteps, i_border, j_border):
     M1_err2, M1_r_err2, M1_resc_err2, M1_d_resc_err2, M1_sm_err2 = np.zeros(errSteps), np.zeros(errSteps), np.zeros(errSteps), np.zeros(errSteps), np.zeros(errSteps)
     beta=1.0/T
     prob = 1 - np.exp(-2*beta)
-    
+
+    if my_rank == 0:
+        pbar = tqdm(total=eqSteps, ncols=100)
+
     for _ in range(eqSteps):
         wolff.wolffmove(config, prob, i_border, j_border)
         wolff.wolffmove(config_r, prob, i_border, j_border)
+        
+        if my_rank == 0:
+            pbar.update(1)
+            pbar.set_description('Rank 0 equilibration progress')
+    
+    if my_rank == 0:
+        pbar.close()
+        pbar = tqdm(total=wolffSteps, ncols=100)
 
     for i in range(wolffSteps):
         wolff.wolffmove(config, prob, i_border, j_border)
         wolff.wolffmove(config_r, prob, i_border, j_border)
+
+        if my_rank == 0:
+            pbar.update(1)
+            pbar.set_description('Rank 0 averaging progress')
+            
         resc = rescale_config(config_r)
         d_resc = rescale_config(resc)
         config_sm = rescale_config(config)
