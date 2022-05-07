@@ -94,8 +94,8 @@ def calc_nu(N, T, M, M_r, M_resc, M_doub_resc, M_sm, X, X_r, X_resc, X_doub_resc
     ax.plot(T, X_curve_resc(T), color='RoyalBlue', label=r'$\chi_{resc}(N = %s)$' %N)
     ax.errorbar(T, X_resc, yerr = X_resc_err, color='RoyalBlue', linestyle = 'None', capsize = 5, markeredgewidth=2)
 
-    ax.set_xlabel("Температура", fontsize=20)
-    ax.set_ylabel("Восприимчивость", fontsize=20)
+    ax.set_xlabel("Температура", fontsize=24)
+    ax.set_ylabel("Восприимчивость", fontsize=24)
     ax.grid(linestyle='--', linewidth=1)
     ax.axis('tight')
 
